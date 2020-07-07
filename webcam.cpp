@@ -61,7 +61,7 @@ static int xioctl(int fh, unsigned long int request, void *arg)
  */
 #define CLIP(color) (unsigned char)(((color) > 0xFF) ? 0xff : (((color) < 0) ? 0 : (color)))
 
-static void v4lconvert_yuyv_to_rgb24(const unsigned char *src, 
+static void v4lconvert_yuyv_to_rgb32(const unsigned char *src, 
                                      unsigned char *dest,
                                      int width, int height, 
                                      int stride)
@@ -80,10 +80,12 @@ static void v4lconvert_yuyv_to_rgb24(const unsigned char *src,
             *dest++ = CLIP(src[0] + v1);
             *dest++ = CLIP(src[0] - rg);
             *dest++ = CLIP(src[0] + u1);
+            *dest++ = 255;
 
             *dest++ = CLIP(src[2] + v1);
             *dest++ = CLIP(src[2] - rg);
             *dest++ = CLIP(src[2] + u1);
+            *dest++ = 255;
             src += 4;
         }
         src += stride - (width * 2);
@@ -180,7 +182,7 @@ bool Webcam::read_frame()
 
     assert(buf.index < n_buffers);
 
-    v4lconvert_yuyv_to_rgb24((unsigned char *) buffers[buf.index].data,
+    v4lconvert_yuyv_to_rgb32((unsigned char *) buffers[buf.index].data,
                              rgb_frame.data,
                              xres,
                              yres,
